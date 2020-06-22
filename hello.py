@@ -40,11 +40,14 @@ def cli(string, name):
             if drive_to_work == 'yes':
                 newDir = Directions(start_address, work_address)
                 getDir = newDir.get_directions(start_address, work_address)
-                print(getDir)
+                
                 newRouteInfo = Route_Information(newDir.start_address, newDir.work_address)
                 print(newRouteInfo.to_address) # access to parent attr - print formatted address
             else:
                 click.echo('add some other func that asks another question')
+                
+        else:
+            click.echo('It\'s the weekend')
                 
 
     
