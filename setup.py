@@ -9,7 +9,8 @@ setup(
     install_requires = [
         'Click',
         'requests',
-        'python-dotenv'
+        'python-dotenv',
+        'win10toast'
     ],
     entry_points = '''
         [console_scripts]

@@ -9,9 +9,6 @@ load_dotenv()
 OW_TOKEN = os.environ.get('OW_TOKEN')
 MQ_TOKEN = os.environ.get('MQ_TOKEN')
 
-# to work URL
-# http://www.mapquestapi.com/traffic/v2/incidents?key={MQ_TOKEN}&boundingBox=-87.71,41.94,-88.02,42.13
-
 coordinates = []
 formatted_coord_list = []
 
@@ -55,32 +52,28 @@ class Directions:
         # return just data
         return direction_data
     
-#     type 
-# Incident type. Values are:
-
-# 1 = Construction
-# 2 = Event
-# 3 = Congestion/Flow
-# 4 = Incident/accident
-    
     def get_traffic_info(self, format_coors):
-        #traffic_res = requests.get(
-        #    f'http://www.mapquestapi.com/traffic/v2/incidents?key={MQ_TOKEN}&boundingBox={format_coors}')
-        
         # USING FOR EXAMPLE TO HANDLE TRAFFIC DATA W INCIDENCE
-        traffic_res = requests.get(f'http://www.mapquestapi.com/traffic/v2/incidents?key={MQ_TOKEN}&boundingBox=39.95,-105.25,39.52,-104.71')
-        traffic_res.raise_for_status()
-        traffic_dictionary = traffic_res.json()
-        # print(traffic_dictionary)
-        if len(traffic_dictionary['incidents']) == 0 or traffic_dictionary['incidents'] == []:
-            return False
-        else:
-            incident_data = traffic_dictionary['incidents']
-            # filter to search for severity > 0, filter looks for true or false
-            # lambda will receive each instance to compare
-            filtered_list = map(lambda x:x['shortDesc'], filter(lambda x: x['severity'] > 0, incident_data))
-            for s in filtered_list:
-                print(s)
+        try:
+            traffic_res = requests.get(
+            f'http://www.mapquestapi.com/traffic/v2/incidents?key={MQ_TOKEN}&boundingBox={format_coors}')
+            # traffic_res = requests.get(f'http://www.mapquestapi.com/traffic/v2/incidents?key={MQ_TOKEN}&boundingBox=39.95,-105.25,39.52,-104.71')
+            traffic_res.raise_for_status()
+            traffic_dictionary = traffic_res.json()
+            if len(traffic_dictionary['incidents']) == 0 or traffic_dictionary['incidents'] == []:
+                return False
+            else:
+                incident_data = traffic_dictionary['incidents']
+                
+                # filter to search for severity > 0, filter looks for true or false
+                # lambda (anon function) will receive each instance to compare
+                filtered_list = map(lambda x:x['shortDesc'], filter(lambda x: x['impacting'], incident_data))
+                for incidents in filtered_list:
+                    return incidents
+                    
+                
+        except requests.exceptions.RequestException as e:  # This is the correct syntax
+            raise SystemExit(e)
     
     @staticmethod
     def is_workday(day):
@@ -100,6 +93,3 @@ class Directions:
 
 # incident/traffic API is specfic - must have boundingBox rounded to nearest hundredths place and all spaces removed
 # Example:boundingBox=39.95,-105.25,39.52,-104.71
-
-    
-    
