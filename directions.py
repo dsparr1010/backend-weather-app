@@ -53,10 +53,11 @@ class Directions:
         return direction_data
     
     def get_traffic_info(self, format_coors):
-        # USING FOR EXAMPLE TO HANDLE TRAFFIC DATA W INCIDENCE
+        
         try:
             traffic_res = requests.get(
             f'http://www.mapquestapi.com/traffic/v2/incidents?key={MQ_TOKEN}&boundingBox={format_coors}')
+            # USING FOR EXAMPLE TO HANDLE TRAFFIC DATA W INCIDENCE
             # traffic_res = requests.get(f'http://www.mapquestapi.com/traffic/v2/incidents?key={MQ_TOKEN}&boundingBox=39.95,-105.25,39.52,-104.71')
             traffic_res.raise_for_status()
             traffic_dictionary = traffic_res.json()

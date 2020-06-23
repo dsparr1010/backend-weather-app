@@ -10,7 +10,9 @@ setup(
         'Click',
         'requests',
         'python-dotenv',
-        'win10toast'
+        'win10toast',
+        'geocoder',
+        'mysql-connector-python'
     ],
     entry_points = '''
         [console_scripts]
