@@ -12,7 +12,8 @@ setup(
         'python-dotenv',
         'win10toast',
         'geocoder',
-        'mysql-connector-python'
+        'mysql-connector-python',
+        'choice'
     ],
     entry_points = '''
         [console_scripts]

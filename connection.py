@@ -10,6 +10,8 @@ MYSQL_DATABASE = os.environ.get('MYSQL_DATABASE')
 MYSQL_USER = os.environ.get('MYSQL_USER')
 MYSQL_PASS = os.environ.get('MYSQL_PASS')
 
+
+
 def connect():
     """ Connect to MySQL database """
     conn = None
@@ -22,15 +24,15 @@ def connect():
         #tinyint synonym for boolean in mysql,
         #accepts 0 (false) or 1 (true)
         mysql_create_table_query = """CREATE TABLE IF NOT EXISTS Profile (
-            id int(12) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            id int(12) AUTO_INCREMENT PRIMARY KEY,
             first_name varchar(20) NOT NULL,
             last_name varchar(30) NOT NULL,
             username varchar(50) NOT NULL,
             password varchar(50) NOT NULL,
             email varchar(255),
             add_addresses tinyint(1),
-            created_stamp timestamp default '0000-00-00 00:00:00',
-            updated_stamp timestamp default now() on update now()
+            created_stamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_stamp DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
         )
         """
         cursor = conn.cursor()
@@ -45,12 +47,14 @@ def connect():
     except Error as e:
         print(e)
 
-    finally:
-        if conn is not None and conn.is_connected():
-            cursor.close()
-            conn.close()
-            print("MySQL connection is closed")
+    # finally:
+    #     if conn is not None and conn.is_connected():
+            # cursor.close()
+            # conn.close()
+            # print("MySQL connection is closed")
 
 
-if __name__ == '__main__':
+
+
+if __name__ == '__main__' or 'greeting':
     connect()

@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 from operator import itemgetter
-from directions import Directions
-from weather import Weather
+from Classes.directions import Directions
+from Classes.weather import Weather
 from datetime import datetime
 import json
 import os
