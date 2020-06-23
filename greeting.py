@@ -1,18 +1,12 @@
 import click
 import choice
-from db import insert_into_profile
+from db import insert_into_profile, insert_address, get_user_id
 import mysql.connector
 from mysql.connector import Error
 from dotenv import load_dotenv
 import os
 
 load_dotenv()
-
-MYSQL_HOST = os.environ.get('MYSQL_HOST')
-MYSQL_DATABASE = os.environ.get('MYSQL_DATABASE')
-MYSQL_USER = os.environ.get('MYSQL_USER')
-MYSQL_PASS = os.environ.get('MYSQL_PASS')
-MYSQL_TABLE = os.environ.get('MYSQL_TABLE')
 
 
 @click.command()
@@ -28,8 +22,21 @@ def greeting():
         password = choice.Input('Enter a password', str).ask()
         email = choice.Input('Enter your email address', str).ask() # can be null
         add_addresses = choice.Binary('Would you like to add addresses to your profile?', True).ask()
+        insert_into_profile(first_name, last_name, username, password, email, add_addresses)
+        
+        if add_addresses:
+            user_id = get_user_id(username)
+            add_addresses_prompt(user_id)
+            
+    
+def add_addresses_prompt(user_id):
+    name = choice.Input('What is the name of the address you want to save? i.e. Home, Work, or Grandpa\'s', str).ask()
+    street = choice.Input('What is the street? i.e. 4311 Saint Lawrnce', str).ask()
+    city = choice.Input('City?', str).ask()
+    state = choice.Input('What state?', str).ask()
+    zip = choice.Input('What is the zip?', int).ask()
+    insert_address(name, street, city, state, zip, user_id)
 
-        insert_into_tbl(first_name, last_name, username, password, email, add_addresses)
-    
-    
+
+
 greeting()
