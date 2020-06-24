@@ -11,21 +11,19 @@ import bcrypt
 
 load_dotenv()
 
-@click.command()
-def greeting():
+def greetings():
     user_greeting_response = choice.Menu(['Login', 'Create new profile']).ask()
     if user_greeting_response == 'Login':
-        print('add some functionality to log in')
         username = choice.Input('Enter your username', str).ask()
         password = choice.Input('Enter your password', str).ask()
-        user_id = get_user_data(username, password)['user_id']
-        if user_id:
+        user_data = get_user_data(username, password)
+        if user_data:
             click.echo('You are logged in! What would you like to do?')
-            user_want_response = choice.Menu(['Manage my addresses', 'See the weather', 'Check traffic conditions']).ask()
-            return user_want_response
+            return user_data
+            
         else:
             click.echo('Incorrect password or username')
-            greeting()
+            greetings()
         
     else:
         click.echo('creating a new user')
@@ -40,6 +38,8 @@ def greeting():
         if add_addresses:
             user_id = get_user_data(username, password)['user_id']
             add_addresses_prompt(user_id)
+            # user_want()
+            
             
     
 def add_addresses_prompt(user_id):
@@ -65,5 +65,12 @@ def test_connection():
         cursor.close()
         connection.close()
         print("MySQL connection is closed")
+        
+        
+def user_want():
+    user_want_response = choice.Menu(['Manage my addresses', 'See the weather', 'Check traffic conditions']).ask()
+    return user_want_response
 
-greeting()
+
+def checker():
+    print('in greeting file')

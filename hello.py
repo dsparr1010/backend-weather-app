@@ -1,12 +1,13 @@
 from dotenv import load_dotenv
 from operator import itemgetter
-import greeting
+from greeting import greetings, user_want
 from Classes.directions import Directions
 from Classes.weather import Weather
 from datetime import datetime
 import json
 import os
 import click
+import choice
 import requests
 import geocoder
 from win10toast import ToastNotifier
@@ -22,10 +23,26 @@ MQ_TOKEN = os.environ.get('MQ_TOKEN')
 @click.argument('name', default='guest')
 def cli(string, name):
     '''Welcome to My Day Planner'''
-    user_response = greeting()
+    user_data = greetings()
+    user_response = user_want()
+
+    print(user_data)
+
+    if user_response == '0' or user_response == 'Manage my addresses':
+        # Manage my addresses
+        # query into db to find and print all address associated w user_id
+        print('Manage my addresses')
+
+    elif user_response == '1' or user_response == 'See the weather':
+        print('See the weather')
+    elif user_response == '2' or user_response == 'Check traffic conditions':
+        print('traffic condit')
     
+    else:
+        click.echo('I don\'t understand you dood')
+        greetings()
     
-    start_address = '3716 W Eddy St,Chicago,IL'
+    start_address = '3710 W Eddy St,Chicago,IL'
     work_address = '1500+West+Shure+Drive,+Arlington+Heights,+IL'
     city = 'chicago'
     testing_address = 'Denver,CO'
