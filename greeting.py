@@ -1,21 +1,28 @@
 import click
 import choice
-from db import insert_into_profile, insert_address, get_user_id
+from controller import insert_into_profile, insert_address, get_pass_by_username, get_user_data
+from database_config.db_connection import create_connection
 import mysql.connector
 from mysql.connector import Error
 from dotenv import load_dotenv
 import os
+import sys
+import bcrypt
 
 load_dotenv()
-
 
 @click.command()
 def greeting():
     user_greeting_response = choice.Menu(['Login', 'Create new profile']).ask()
     if user_greeting_response == 'Login':
         print('add some functionality to log in')
+        username = choice.Input('Enter your username', str).ask()
+        password = choice.Input('Enter your password', str).ask()
+        user_id = get_user_data(username, password)['user_id']
+        click.echo(user_id)
+        
     else:
-        print('creating a new user')
+        click.echo('creating a new user')
         first_name = choice.Input('What is your first name?', str).ask()
         last_name = choice.Input('What is your last name?', str).ask()
         username = choice.Input('Pick a username?', str).ask()
@@ -25,7 +32,7 @@ def greeting():
         insert_into_profile(first_name, last_name, username, password, email, add_addresses)
         
         if add_addresses:
-            user_id = get_user_id(username)
+            user_id = get_user_data(username, password)['user_id']
             add_addresses_prompt(user_id)
             
     
@@ -38,5 +45,19 @@ def add_addresses_prompt(user_id):
     insert_address(name, street, city, state, zip, user_id)
 
 
+def test_connection():
+    try:
+        connection = create_connection()
+        cursor = connection.cursor()
+        cursor.execute("SHOW TABLES")
+        tables = cursor.fetchall()
+        for table in tables:
+                print(table)
+    except mysql.connector.Error as error:
+        print("Failed to SHOW TABLES in MySQL: {}".format(error))
+    finally:
+        cursor.close()
+        connection.close()
+        print("MySQL connection is closed")
 
 greeting()

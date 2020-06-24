@@ -1,35 +1,20 @@
 import mysql.connector
 from mysql.connector import Error
-from dotenv import load_dotenv
 import os
+from database_config.db_connection import create_connection
+import bcrypt
 
-load_dotenv()
 
-MYSQL_HOST = os.environ.get('MYSQL_HOST')
-MYSQL_DATABASE = os.environ.get('MYSQL_DATABASE')
-MYSQL_USER = os.environ.get('MYSQL_USER')
-MYSQL_PASS = os.environ.get('MYSQL_PASS')
-
-# connection = mysql.connector.connect(host=MYSQL_HOST,
-#                         database=MYSQL_DATABASE,
-#                         user=MYSQL_USER,
-#                         password=MYSQL_PASS,
-#                         get_warnings=True)
 
 def insert_into_profile(first_name, last_name, username, password, email, add_addresses):
     try:
-        connection = mysql.connector.connect(host=MYSQL_HOST,
-                    database=MYSQL_DATABASE,
-                    user=MYSQL_USER,
-                    password=MYSQL_PASS,
-                    get_warnings=True)
-        print('db connected')
+        connection = create_connection()
         mysql_create_table_query = """CREATE TABLE IF NOT EXISTS Profile (
             user_id int(12) AUTO_INCREMENT PRIMARY KEY,
             first_name varchar(20) NOT NULL,
             last_name varchar(30) NOT NULL,
             username varchar(50) NOT NULL,
-            password varchar(50) NOT NULL,
+            password varchar(250) NOT NULL,
             email varchar(255),
             add_addresses tinyint(1),
             created_stamp DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -38,29 +23,22 @@ def insert_into_profile(first_name, last_name, username, password, email, add_ad
         """
         cursor = connection.cursor()
         cursor.execute(mysql_create_table_query)
+        
+        hashed = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+        print(hashed)
+        
         mysql_insert_query = """INSERT INTO Profile (first_name, last_name, username, password, email, add_addresses) VALUES (%s, %s, %s, %s, %s, %s)"""
-        values = (first_name, last_name, username, password, email, add_addresses)
+        values = (first_name, last_name, username, hashed, email, add_addresses)
         cursor.execute(mysql_insert_query, values)
         connection.commit()
         print('inserted into DB')
     
     except mysql.connector.Error as error:
         print("Failed to insert into MySQL table {}".format(error))
-
-    finally:
-        if (connection.is_connected()):
-            cursor.close()
-            connection.close()
-            print("MySQL connection is closed")
             
 def insert_address(name, street, city, state, zip, user_id):
     try:
-        connection = mysql.connector.connect(host=MYSQL_HOST,
-                            database=MYSQL_DATABASE,
-                            user=MYSQL_USER,
-                            password=MYSQL_PASS,
-                            get_warnings=True)
-        print('db connected')
+        connection = create_connection()
         mysql_create_table_query = """CREATE TABLE IF NOT EXISTS Address (
             address_id int(12) AUTO_INCREMENT PRIMARY KEY,
             name varchar(20) NOT NULL,
@@ -84,35 +62,48 @@ def insert_address(name, street, city, state, zip, user_id):
 
     except mysql.connector.Error as error:
         print("Failed to insert into MySQL table {}".format(error))
-
-    finally:
-        if (connection.is_connected()):
-            cursor.close()
-            connection.close()
-            print("MySQL connection is closed")
             
-def get_user_id(username):
+def get_user_data(username, password):
     try:
-        connection = mysql.connector.connect(host=MYSQL_HOST,
-                        database=MYSQL_DATABASE,
-                        user=MYSQL_USER,
-                        password=MYSQL_PASS,
-                        get_warnings=True)
-        cursor = connection.cursor(buffered=True)
-        query = "SELECT user_id FROM Profile WHERE username = %s"
-        user = (username ,)
-        cursor.execute(query, user)
-        result = cursor.fetchone()
-        for x in result:
-            return x
+        connection = create_connection()
+        cursor = connection.cursor()
+        user_id, first_name, last_name, username, pass_in_db, email, add_addresses = get_pass_by_username(username)
+        correct_password = check_password(password, pass_in_db)
+        
+        if correct_password:
+            user_data = {
+                'user_id' : user_id,
+                'first_name' : first_name,
+                'last_name' : last_name,
+                'username' : username,
+                'email' : email,
+                'add_addresses' : add_addresses
+            }
+            print('correct password')
+            return user_data
+        else:
+            return False
         
     except mysql.connector.Error as error:
         print("Failed to insert into MySQL table {}".format(error))
 
-    finally:
-        if (connection.is_connected()):
-            cursor.close()
-            connection.close()
-            print("MySQL connection is closed")
     
-    
+def get_hashed_password(plain_text_password):
+    return bcrypt.hashpw(plain_text_password.encode('utf-8'), bcrypt.gensalt())
+
+def check_password(plain_text_password, hashed_password):
+    return bcrypt.checkpw(plain_text_password.encode('utf-8'), hashed_password.encode('utf-8'))
+
+def get_pass_by_username(username):
+    try:
+        connection = create_connection()
+        cursor = connection.cursor()
+        query = "SELECT user_id, first_name, last_name, username, password, email, add_addresses FROM Profile WHERE username = %s"
+        this_username = (username ,)
+        cursor.execute(query, this_username)
+        result = cursor.fetchone()
+        return result
+        
+    except mysql.connector.Error as error:
+        print("Failed to find username {}".format(error))
+

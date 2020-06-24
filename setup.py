@@ -13,7 +13,8 @@ setup(
         'win10toast',
         'geocoder',
         'mysql-connector-python',
-        'choice'
+        'choice',
+        'bcrypt'
     ],
     entry_points = '''
         [console_scripts]
