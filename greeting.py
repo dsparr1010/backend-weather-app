@@ -19,7 +19,13 @@ def greeting():
         username = choice.Input('Enter your username', str).ask()
         password = choice.Input('Enter your password', str).ask()
         user_id = get_user_data(username, password)['user_id']
-        click.echo(user_id)
+        if user_id:
+            click.echo('You are logged in! What would you like to do?')
+            user_want_response = choice.Menu(['Manage my addresses', 'See the weather', 'Check traffic conditions']).ask()
+            return user_want_response
+        else:
+            click.echo('Incorrect password or username')
+            greeting()
         
     else:
         click.echo('creating a new user')

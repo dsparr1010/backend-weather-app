@@ -13,7 +13,7 @@ def insert_into_profile(first_name, last_name, username, password, email, add_ad
             user_id int(12) AUTO_INCREMENT PRIMARY KEY,
             first_name varchar(20) NOT NULL,
             last_name varchar(30) NOT NULL,
-            username varchar(50) NOT NULL,
+            username varchar(50) NOT NULL UNIQUE,
             password varchar(250) NOT NULL,
             email varchar(255),
             add_addresses tinyint(1),
@@ -77,7 +77,8 @@ def get_user_data(username, password):
                 'last_name' : last_name,
                 'username' : username,
                 'email' : email,
-                'add_addresses' : add_addresses
+                'add_addresses' : add_addresses,
+                'logged_in' : True
             }
             print('correct password')
             return user_data

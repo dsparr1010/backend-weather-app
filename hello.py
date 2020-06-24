@@ -22,6 +22,9 @@ MQ_TOKEN = os.environ.get('MQ_TOKEN')
 @click.argument('name', default='guest')
 def cli(string, name):
     '''Welcome to My Day Planner'''
+    user_response = greeting()
+    
+    
     start_address = '3716 W Eddy St,Chicago,IL'
     work_address = '1500+West+Shure+Drive,+Arlington+Heights,+IL'
     city = 'chicago'
